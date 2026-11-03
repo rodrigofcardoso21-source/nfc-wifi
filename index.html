@@ -1,43 +1,53 @@
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WiFi NFC</title>
-
+<title>Connect to Wi-Fi</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
-  padding: 25px;
+  min-height: 100vh;
+  padding: 20px;
+  background: #fafafa;
   font-family: Arial, sans-serif;
-  background: #f5f5f5;
   color: #171717;
 }
 
 .container {
+  width: 100%;
   max-width: 440px;
   margin: 40px auto;
   background: white;
   padding: 28px;
-  border-radius: 18px;
+  border-radius: 20px;
   text-align: center;
-  box-shadow: 0 4px 25px #00000010;
+  box-shadow: 0 5px 30px rgba(0,0,0,.07);
 }
 
-h1 { margin-bottom: 8px; }
+h1 {
+  font-size: 29px;
+  margin: 8px 0 12px;
+}
 
-p { color: #666; line-height: 1.5; }
+p {
+  color: #777;
+  line-height: 1.5;
+}
 
 input, select {
   width: 100%;
-  padding: 14px;
+  padding: 15px;
   margin: 8px 0;
   border: 1px solid #ddd;
-  border-radius: 9px;
+  border-radius: 10px;
   font-size: 16px;
 }
 
@@ -48,48 +58,112 @@ button {
   background: #111;
   color: white;
   border: 0;
-  border-radius: 9px;
+  border-radius: 10px;
   font-size: 16px;
   cursor: pointer;
 }
 
-#qr {
+.hidden {
+  display: none !important;
+}
+
+/* CUSTOMER PAGE */
+
+.connect-card {
+  max-width: 440px;
+  margin: 50px auto;
+  padding: 28px 20px 30px;
+  background: white;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.wifi-icon {
+  width: 34px;
+  height: 34px;
+  margin: 0 auto 8px;
+}
+
+.connect-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 18px;
+}
+
+.qr-box {
+  width: 190px;
+  height: 190px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7f7f7;
+  border: 1px solid #e8e8e8;
+  border-radius: 18px;
+  padding: 15px;
+}
+
+#customerQR {
   display: flex;
   justify-content: center;
-  margin: 25px auto;
-  min-height: 20px;
+  align-items: center;
+  width: 160px;
+  height: 160px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  padding: 5px;
 }
 
-#qr img, #qr canvas {
-  max-width: 100%;
-  height: auto;
+#customerQR img,
+#customerQR canvas {
+  width: 150px !important;
+  height: 150px !important;
+  display: block;
 }
 
-#result {
-  display: none;
+.press-label {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 4px 10px;
+  background: #d8f5e3;
+  color: #00883b;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
-#link {
-  word-break: break-all;
-  background: #f1f1f1;
-  padding: 12px;
-  border-radius: 8px;
+.footer-text {
   font-size: 13px;
   margin-top: 12px;
+  color: #777;
 }
 
-.hidden { display: none; }
+@media(max-width: 480px) {
+  body {
+    padding: 12px;
+  }
+
+  .container {
+    margin: 30px auto;
+  }
+
+  .connect-card {
+    margin: 25px auto;
+  }
+}
 </style>
 </head>
 
 <body>
+
+<!-- CONFIGURATION PAGE -->
 
 <div class="container" id="setup">
   <h1>Configurar Wi-Fi</h1>
   <p>Introduz os dados da tua rede para personalizar a etiqueta NFC.</p>
 
   <input id="ssid" placeholder="Nome da rede Wi-Fi">
-
   <input id="password" placeholder="Password Wi-Fi">
 
   <select id="security">
@@ -100,28 +174,46 @@ button {
 
   <button onclick="generate()">Gerar configuração</button>
 
-  <div id="result">
+  <div id="result" class="hidden">
     <h3>O teu QR Code Wi-Fi</h3>
     <div id="qr"></div>
-    <p>Este é o QR Code que será apresentado aos visitantes.</p>
-
-    <h3>URL para gravar no NFC</h3>
     <div id="link"></div>
-
     <button onclick="copyLink()">Copiar URL</button>
     <button onclick="downloadQR()">Guardar QR Code</button>
   </div>
 </div>
 
-<div class="container hidden" id="connect">
-  <h1>Bem-vindo!</h1>
-  <p>Pressiona o QR Code para aceder à opção de ligação Wi-Fi.</p>
-  <div id="customerQR"></div>
-  <p id="network"></p>
-  <p>Também podes guardar esta imagem e abri-la na galeria.</p>
+<!-- CUSTOMER PAGE -->
+
+<div class="connect-card hidden" id="connect">
+
+  <svg class="wifi-icon" viewBox="0 0 24 24"
+       fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round">
+    <path d="M2 8.5a16 16 0 0 1 20 0"/>
+    <path d="M5 12a11 11 0 0 1 14 0"/>
+    <path d="M8.5 15.5a5.5 5.5 0 0 1 7 0"/>
+    <circle cx="12" cy="19" r="1" fill="currentColor"/>
+  </svg>
+
+  <h1 class="connect-title">Connect to Wi-Fi</h1>
+
+  <div class="qr-box">
+    <div id="customerQR"></div>
+  </div>
+
+  <div class="press-label">
+    Pressiona o QR Code
+  </div>
+
+  <p class="footer-text">
+    O QR Code é gerado individualmente para cada comprador.
+  </p>
+
 </div>
 
 <script>
+
 function escapeWifi(value) {
   return value.replace(/([\\;,":])/g, "\\$1");
 }
@@ -153,8 +245,8 @@ function generate() {
   }
 
   const payload = makeWifiPayload(ssid, password, security);
-
   const baseURL = location.href.split("#")[0];
+
   const personalizedURL =
     baseURL + "#wifi=" + encodeURIComponent(payload);
 
@@ -167,28 +259,25 @@ function generate() {
     correctLevel: QRCode.CorrectLevel.M
   });
 
-  document.getElementById("link").textContent =
-    personalizedURL;
-
-  document.getElementById("result").style.display = "block";
+  document.getElementById("link").textContent = personalizedURL;
+  document.getElementById("result").classList.remove("hidden");
 }
 
 function copyLink() {
   const link = document.getElementById("link").textContent;
-  navigator.clipboard.writeText(link);
-  alert("URL copiado!");
+
+  navigator.clipboard.writeText(link)
+    .then(() => alert("URL copiado!"))
+    .catch(() => alert("Não foi possível copiar automaticamente."));
 }
 
 function downloadQR() {
   const canvas = document.querySelector("#qr canvas");
-  const img = document.querySelector("#qr img");
 
-  const url = canvas
-    ? canvas.toDataURL("image/png")
-    : img.src;
+  if (!canvas) return;
 
   const a = document.createElement("a");
-  a.href = url;
+  a.href = canvas.toDataURL("image/png");
   a.download = "wifi-qr.png";
   a.click();
 }
@@ -197,13 +286,10 @@ function showCustomerPage(payload) {
   document.getElementById("setup").classList.add("hidden");
   document.getElementById("connect").classList.remove("hidden");
 
-  document.getElementById("network").textContent =
-    "Rede: " + (payload.match(/(?:^|;)S:((?:\\.|[^;])*)/)?.[1] || "");
-
   new QRCode(document.getElementById("customerQR"), {
     text: payload,
-    width: 280,
-    height: 280,
+    width: 150,
+    height: 150,
     correctLevel: QRCode.CorrectLevel.M
   });
 }
@@ -214,6 +300,7 @@ const wifi = params.get("wifi");
 if (wifi && wifi.startsWith("WIFI:")) {
   showCustomerPage(wifi);
 }
+
 </script>
 
 </body>
